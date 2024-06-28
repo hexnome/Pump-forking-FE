@@ -40,7 +40,6 @@ export const Chatting: React.FC<ChattingProps> = ({ param, coin }) => {
       console.log("updated", messages)
       setMessages([...messages, tempNewMsg])
       // setNewMsg({} as msgInfo);
-
     }
   }, [tempNewMsg])
   console.log("updated",messages)
