@@ -25,6 +25,15 @@ export const getUser = async ({ id }: { id: string }): Promise<any> => {
         return { error: "error setting up the request" }
     }
 }
+export const updateUser = async (id: string, data: userInfo): Promise<any>=>{
+    try {
+        console.log(`${BACKEND_URL}/user/update/${id}`)
+        const response = await axios.post(`${BACKEND_URL}/user/update/${id}`, data, config)
+        return response.data
+    } catch (err) {
+        return { error: "error setting up the request" }
+    }
+}
 
 export const walletConnect = async ({ data }: { data: userInfo }): Promise<any> => {
     try {

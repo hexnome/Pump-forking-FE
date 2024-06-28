@@ -24,7 +24,11 @@ const UserContext = createContext({
     isCreated: false,
     setIsCreated: (value: boolean) => { },
     messages: [] as msgInfo[],
-    setMessages: (value: msgInfo[]) => {},
+    setMessages: (value: msgInfo[]) => { },
+    coinId: "",
+    setCoinId: (value: string) => { },
+    newMsg: {} as msgInfo,
+    setNewMsg: (value: msgInfo) => { },
 })
 
 export default UserContext;

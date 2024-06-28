@@ -22,36 +22,41 @@ export default function Providers({ children }: { children: ReactNode }) {
   const [imageUrl, setImageUrl] = useState('/upload-bg.png');
   const [isCreated, setIsCreated] = useState(false);
   const [messages, setMessages] = useState<msgInfo[]>([]);
-  
+  const [coinId, setCoinId] = useState<string>('');
+  const [newMsg, setNewMsg] = useState<msgInfo>({} as msgInfo);
   return (
     <SolanaWalletProvider>
-      <SocketProvider>
-        <QueryClientProvider client={queryClient}>
-          <ModalProvider>
-            <PageProvider>
-              <UserContext.Provider
-                value={{
-                  messages,
-                  setMessages,
-                  isCreated,
-                  setIsCreated,
-                  imageUrl,
-                  setImageUrl,
-                  user,
-                  setUser,
-                  login,
-                  setLogin,
-                  isLoading,
-                  setIsLoading,
-                }}
-              >
+      <QueryClientProvider client={queryClient}>
+        <ModalProvider>
+          <PageProvider>
+            <UserContext.Provider
+              value={{
+                newMsg,
+                setNewMsg,
+                coinId,
+                setCoinId,
+                messages,
+                setMessages,
+                isCreated,
+                setIsCreated,
+                imageUrl,
+                setImageUrl,
+                user,
+                setUser,
+                login,
+                setLogin,
+                isLoading,
+                setIsLoading,
+              }}
+            >
+              <SocketProvider>
                 {children}
-                <ToastContainer pauseOnFocusLoss={false} theme="colored" />
-              </UserContext.Provider>
-            </PageProvider>
-          </ModalProvider>
-        </QueryClientProvider>
-      </SocketProvider>
+              </SocketProvider>
+              <ToastContainer pauseOnFocusLoss={false} theme="colored" />
+            </UserContext.Provider>
+          </PageProvider>
+        </ModalProvider>
+      </QueryClientProvider>
     </SolanaWalletProvider>
   );
 }

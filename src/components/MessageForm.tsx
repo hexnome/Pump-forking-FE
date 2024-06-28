@@ -17,7 +17,7 @@ export const MessageForm: React.FC<MessageFormProps> = ({ msg }) => {
             height={40}
           />
           <h3 className="bg-slate-600 mx-5 px-3 leading-10 rounded text-white text-lg ">
-            {(msg.sender as userInfo).name}
+            {msg.sender && (msg.sender as userInfo).name}
           </h3>
           {msg.time && <h3 className="text-white leading-10">{msg.time.toString()}</h3>}
         </div>

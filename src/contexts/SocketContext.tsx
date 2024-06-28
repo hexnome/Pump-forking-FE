@@ -5,6 +5,8 @@ import io, { Socket } from "socket.io-client";
 import { useConnection, useWallet } from '@solana/wallet-adapter-react';
 import { useRouter } from "next/navigation";
 import { errorAlert, successAlert } from "@/components/ToastGroup";
+import { msgInfo } from "@/utils/types";
+import UserContext from "@/context/UserContext";
 
 
 interface Context {
@@ -32,6 +34,7 @@ const context = createContext<Context>({});
 export const useSocket = () => useContext(context);
 
 const SocketProvider = (props: { children: any }) => {
+    const { coinId, setCoinId, newMsg, setNewMsg } = useContext(UserContext)
     const [socket, setSocket] = useState<Socket>();
     const [counter, setCounter] = useState<number>(1);
     const [randValue, setRandValue] = useState<number>(0);
@@ -46,7 +49,7 @@ const SocketProvider = (props: { children: any }) => {
         message: '',
         severity: undefined,
     })
-    
+
     const router = useRouter();
     // const router = useRouter();
     // wallet Info
@@ -79,6 +82,11 @@ const SocketProvider = (props: { children: any }) => {
         setIsLoading(false);
     }
 
+    const createMessageHandler = (updateCoinId: string, updateMsg: msgInfo) => {
+        console.log("Updated Message", updateCoinId, updateMsg)
+        setCoinId(updateCoinId);
+        setNewMsg(updateMsg);
+    }
     // Listen for the "connectionUpdated" event and update the state
     // const transFailHandler = (address: string, txt: string, walletAddr: string) => {
     //     console.log(walletAddr, 'addressPubkey');
@@ -132,51 +140,58 @@ const SocketProvider = (props: { children: any }) => {
     }, [router]);
 
     useEffect(() => {
-            socket?.on("connectionUpdated", async (counter: number) => {
-                console.log("--------@ Connection Updated: ", counter);
-                
-                connectionUpdatedHandler(counter)
-            });
+        socket?.on("connectionUpdated", async (counter: number) => {
+            console.log("--------@ Connection Updated: ", counter);
 
-            socket?.on("Creation",  () => {
-                console.log("--------@ Token Creation: ");
+            connectionUpdatedHandler(counter)
+        });
 
-            });
-            socket?.on("TokenCreated", async (name: string, mint: string) => {
-                console.log("--------@ Token Created!: ", name);
+        socket?.on("Creation", () => {
+            console.log("--------@ Token Creation: ");
 
-                createSuccessHandler(name, mint);
-            });
+        });
+        socket?.on("TokenCreated", async (name: string, mint: string) => {
+            console.log("--------@ Token Created!: ", name);
 
-            socket?.on("TokenNotCreated", async (name: string, mint: string) => {
-                console.log("--------@ Token Not Created: ", name);
+            createSuccessHandler(name, mint);
+        });
 
-                createFailedHandler(name, mint);
-            });
+        socket?.on("TokenNotCreated", async (name: string, mint: string) => {
+            console.log("--------@ Token Not Created: ", name);
 
-            // socket?.on("entered", async (update: any) => {
-            //     console.log("--------@ New Entered: ");
+            createFailedHandler(name, mint);
+        });
 
-            //     await depositedHandler();
-            // });
-            // socket?.on("performedTx", async (address: string, msg: string) => {
-            //     console.log("--------@ Performed Tx: ", address, msg);
+        socket?.on("messageUpdated", async (updateCoinId: string, newMessage: msgInfo) => {
+            if (updateCoinId && newMessage) {
+                console.log("--------@ Message Updated:", updateCoinId, newMessage)
+                await createMessageHandler(coinId, newMessage)
+                console.log(coinId, newMsg,"updated msg")
+            }
+        })
+        // socket?.on("entered", async (update: any) => {
+        //     console.log("--------@ New Entered: ");
 
-            //     transFailHandler(address, msg, walletAddress)
-            // });
-            // socket?.on("userUpdated", async (address: string, amt: any) => {
-            //     console.log("--------@ User Updated: ", address, amt);
+        //     await depositedHandler();
+        // });
+        // socket?.on("performedTx", async (address: string, msg: string) => {
+        //     console.log("--------@ Performed Tx: ", address, msg);
 
-            //     transSuccessHandler(address, amt, walletAddress)
-            // });
+        //     transFailHandler(address, msg, walletAddress)
+        // });
+        // socket?.on("userUpdated", async (address: string, amt: any) => {
+        //     console.log("--------@ User Updated: ", address, amt);
 
-            return () => {
-                socket?.off("Creation", createSuccessHandler);
-                socket?.off("TokenCreated", createSuccessHandler);
-                socket?.off("TokenNotCreated", createFailedHandler);
+        //     transSuccessHandler(address, amt, walletAddress)
+        // });
 
-                socket?.disconnect();
-            };
+        return () => {
+            socket?.off("Creation", createSuccessHandler);
+            socket?.off("TokenCreated", createSuccessHandler);
+            socket?.off("TokenNotCreated", createFailedHandler);
+
+            socket?.disconnect();
+        };
     }, [socket]);
 
     return (

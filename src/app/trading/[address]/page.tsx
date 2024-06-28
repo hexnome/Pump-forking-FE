@@ -4,18 +4,19 @@ import { CoinBlog } from "@/components/CoinBlog";
 import { Holders } from "@/components/Holders";
 import { TradeForm } from "@/components/TradeForm";
 import {TradingChart} from "@/components/TVChart/TradingChart";
+import UserContext from "@/context/UserContext";
 import { coinInfo } from "@/utils/types";
 import { getCoinInfo, getCoinTrade, getCoinsInfoBy } from "@/utils/util";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect, useMemo, useState } from "react";
+import { useContext, useEffect, useMemo, useState } from "react";
 
 export default function Page() {
+  const {coinId, setCoinId} = useContext(UserContext)
   const pathname = usePathname();
   const [param, setParam] = useState<string >('');
   const [progress, setProgress] = useState<Number>(60);
   const [coin, setCoin] = useState<coinInfo>({} as coinInfo);
-
 
   useEffect(() => {
     const fetchData = async () => {
@@ -23,6 +24,7 @@ export default function Page() {
       const segments = pathname.split("/");
       const parameter = segments[segments.length - 1];
       setParam(parameter);
+      setCoinId(parameter);
       const data = await getCoinInfo(parameter);
       setCoin(data);
       const value = Math.floor(data.reserveOne / 10_000_000_000_000)
@@ -30,6 +32,7 @@ export default function Page() {
     }
     fetchData()
   }, [pathname]);
+  console.log("coinId====tradig",coinId)
   return (
     <>
       <div className="text-center">

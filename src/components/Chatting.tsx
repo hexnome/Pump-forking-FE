@@ -1,6 +1,6 @@
 import { coinInfo, msgInfo, replyInfo, tradeInfo, userInfo } from "@/utils/types";
 import { MessageForm } from "./MessageForm";
-import { ChangeEvent, useContext, useEffect, useState } from "react";
+import { ChangeEvent, useContext, useEffect, useMemo, useState } from "react";
 import { Trade } from "./Trade";
 import { getCoinTrade, getMessageByCoin, postReply, uploadImage } from "@/utils/util";
 import UserContext from "@/context/UserContext";
@@ -17,7 +17,8 @@ export const Chatting: React.FC<ChattingProps> = ({ param, coin }) => {
   const [isModal, setIsModal] = useState<Boolean>(false);
   const [imageUrl, setImageUrl] = useState<string>("");
   const [msg, setMsg] = useState<string>("");
-  const { user, messages, setMessages } = useContext(UserContext);
+  const { user, messages, setMessages, newMsg, setNewMsg, coinId } = useContext(UserContext);
+  const tempNewMsg = useMemo(() => newMsg, [newMsg]);
   const [selectedFileName, setSelectedFileName] = useState("");
   useEffect(() => {
     const fetchData = async () => {
@@ -33,6 +34,16 @@ export const Chatting: React.FC<ChattingProps> = ({ param, coin }) => {
     }
     fetchData();
   }, [isTrades, param])
+  useEffect(() => {
+    console.log( '------tempNewMSG');
+    if (coinId == coin._id) {
+      console.log("updated", messages)
+      setMessages([...messages, tempNewMsg])
+      // setNewMsg({} as msgInfo);
+
+    }
+  }, [tempNewMsg])
+  console.log("updated",messages)
   const handleModalToggle = () => {
     setIsModal(!isModal);
   };

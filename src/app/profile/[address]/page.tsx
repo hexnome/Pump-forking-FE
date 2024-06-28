@@ -3,7 +3,7 @@ import { CoinBlog } from "@/components/CoinBlog";
 import Modal from "@/components/Modal";
 import UserContext from "@/context/UserContext";
 import { coinInfo, userInfo } from "@/utils/types";
-import { getCoinsInfo, getCoinsInfoBy, getUser } from "@/utils/util";
+import { getCoinsInfo, getCoinsInfoBy, getUser, updateUser, uploadImage } from "@/utils/util";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useContext, useEffect, useRef, useState } from "react";
@@ -63,7 +63,18 @@ export default function Page() {
       }
     }
   };
-  
+  const sendUpdate = async () => {
+    if (imageUrl) {
+      const url = await uploadImage(imageUrl);
+      const updatedUser = {
+        name: index.name,
+        wallet: index.wallet,
+        avatart: url
+      }
+      await updateUser(index._id, updatedUser);
+    }
+
+  }
   return (
     <div>
       <div className="grid gap-4 justify-center ml-24">
@@ -102,7 +113,7 @@ export default function Page() {
         </div>
       </div>
       <div className="flex justify-center">
-        <p
+        {/* <p
           className={
             option === 1
               ? `hover:bg-green-600 text-md text-center p-2 bg-green-400 rounded-md m-2`
@@ -111,7 +122,7 @@ export default function Page() {
           onClick={() => setOption(1)}
         >
           Coins held
-        </p>
+        </p> */}
         {user.wallet === index.wallet && (
           <p
             className={
@@ -124,16 +135,6 @@ export default function Page() {
             Replies
           </p>
         )}
-        <p
-          className={
-            option === 3
-              ? `hover:bg-green-600 text-md text-center p-2 bg-green-400 rounded-md m-2`
-              : "hover:bg-stone-700  p-2 rounded m-2 text-gray-400"
-          }
-          onClick={() => setOption(3)}
-        >
-          Notifications
-        </p>
         <p
           className={
             option === 4
@@ -178,7 +179,7 @@ export default function Page() {
               id="username"
               name="username"
               value={index.name}
-              // onChange={}
+            // onChange={}
             />
           </div>
           <div className="mt-[20px] m-auto bg-white pt-2 rounded-lg">
@@ -190,12 +191,12 @@ export default function Page() {
             />
           </div>
           <div className="flex justify-around">
-            <button type="submit" className="mt-2 px-4 py-2 bg-blue-500 text-white rounded-md">
+            <button type="submit" className="mt-2 px-4 py-2 bg-blue-500 text-white rounded-md" onClick={sendUpdate}>
               Save
             </button >
-          <button className="mt-2 px-4 py-2 bg-blue-500 text-white rounded-md" onClick={()=>setIsModal(false)}>
-            cancel
-          </button>
+            <button className="mt-2 px-4 py-2 bg-blue-500 text-white rounded-md" onClick={() => setIsModal(false)}>
+              cancel
+            </button>
           </div>
         </form>
       </Modal>
