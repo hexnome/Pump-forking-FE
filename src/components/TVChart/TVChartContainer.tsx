@@ -1,8 +1,8 @@
 "use client"
 import { useContext, useEffect, useRef, useState } from "react";
-import { ChartingLibraryWidgetOptions, HistoryCallback, IChartingLibraryWidget, IDatafeedChartApi, LanguageCode, PeriodParams, ResolutionString, SearchSymbolResultItem, widget } from "@/libraries/charting_library";
+import { ChartingLibraryWidgetOptions, HistoryCallback, IChartingLibraryWidget, IDatafeedChartApi, LanguageCode, ResolutionString, SearchSymbolResultItem, widget } from "@/libraries/charting_library";
 import { usePathname } from "next/navigation";
-import { Bar, recordInfo } from "@/utils/types";
+import { Bar, PeriodParamsInfo, recordInfo } from "@/utils/types";
 import { getCoinTrade } from "@/utils/util";
 import { chartOverrides, disabledFeatures, enabledFeatures } from "@/utils/constants";
 import { getDataFeed } from "./datafeed";
@@ -16,7 +16,7 @@ export type TVChartContainerProps = {
     name: string;
     pairIndex: number;
     token: string;
-    customPeriodParams: PeriodParams;
+    customPeriodParams: PeriodParamsInfo;
     classNames?: {
         container: string;
     };

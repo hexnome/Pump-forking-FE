@@ -16,8 +16,8 @@ export type Chart = {
     highs: number[];
     lows: number[];
     closes: number[];
-  };
-  
+};
+
 
 export interface userInfo {
     _id?: string,
@@ -87,4 +87,10 @@ export interface replyInfo {
     sender: string;
     msg: string;
     img?: string;
+}
+export interface PeriodParamsInfo {
+    from: number;
+    to: number;
+    countBack: number;
+    firstDataRequest: boolean;
 }
