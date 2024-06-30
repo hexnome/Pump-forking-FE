@@ -6,6 +6,7 @@ import Script from "next/script";
 
 import {
     ChartingLibraryWidgetOptions,
+    PeriodParams,
     ResolutionString,
 } from "@/libraries/charting_library/charting_library";
 import { coinInfo } from "@/utils/types";
@@ -25,8 +26,22 @@ const TVChartContainer = dynamic(
 export const TradingChart: React.FC<TradingChartProps> = ({ param }) => {
 
     const [isScriptReady, setIsScriptReady] = useState(false);
-    
-    console.log("tradingview chart", param)
+    const [period, setPeriod] = useState<PeriodParams>({} as PeriodParams)
+    // console.log("tradingview chart", param)
+    useEffect(() => {
+        if (param.date !== undefined) {
+            const newPeriod: PeriodParams = {
+                from: Math.floor(new Date(param.date).getTime() / 1000),
+                to: Math.floor(new Date().getTime() / 1000),
+                // to: new Date().getTime(),
+                firstDataRequest: true,
+                countBack: 300
+            }
+            console.log(newPeriod, "tradingview")
+            setPeriod(newPeriod);
+        }
+
+    }, [param])
 
     return (
         <>
@@ -47,7 +62,8 @@ export const TradingChart: React.FC<TradingChartProps> = ({ param }) => {
             {isScriptReady && param && <TVChartContainer
                 name={param.name}
                 pairIndex={10}
-                token = {param.token}
+                token={param.token}
+                customPeriodParams={period}
             />}
         </>
     );

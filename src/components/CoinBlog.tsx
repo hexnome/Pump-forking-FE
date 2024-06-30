@@ -22,7 +22,7 @@ export const CoinBlog: React.FC<CoinBlogProps> = ({ coin, componentKey }) => {
             </div>
           </Link>
         </div>
-        <div>market cap: 32.25k{coin?.marketcap} [badge:👑]</div>
+        <div>market cap: {coin?.marketcap} [badge:👑]</div>
         <div>replies: {coin?.replies}</div>
         <div>
           {coin?.name} [ticker: {coin?.ticker}]

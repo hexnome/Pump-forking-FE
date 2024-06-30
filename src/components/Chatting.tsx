@@ -35,14 +35,14 @@ export const Chatting: React.FC<ChattingProps> = ({ param, coin }) => {
     fetchData();
   }, [isTrades, param])
   useEffect(() => {
-    console.log( '------tempNewMSG');
+    console.log( tempNewMsg, '------tempNewMSG');
+    console.log("updated",messages)
     if (coinId == coin._id) {
       console.log("updated", messages)
       setMessages([...messages, tempNewMsg])
       // setNewMsg({} as msgInfo);
     }
   }, [tempNewMsg])
-  console.log("updated",messages)
   const handleModalToggle = () => {
     setIsModal(!isModal);
   };
@@ -135,7 +135,7 @@ export const Chatting: React.FC<ChattingProps> = ({ param, coin }) => {
               </div>
             </div>
             {messages && messages.map((message, index) => (
-              <MessageForm key={index} msg={message}></MessageForm>
+              <MessageForm key={index} msg={message} onClose={handleModalToggle} ></MessageForm>
             ))}
             <p onClick={() => setIsModal(true)} className="p-3 font-bold text-2xl text-center cursor-pointer hover:text-white">Post Reply</p>
             <ReplyModal show={isModal} onClose={handleModalToggle}>

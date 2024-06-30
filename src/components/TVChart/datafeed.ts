@@ -6,10 +6,12 @@ import type {
   IBasicDataFeed,
   DatafeedConfiguration,
   ResolutionString,
+  PeriodParams,
 } from "@/libraries/charting_library";
 
 import { subscribeOnStream, unsubscribeFromStream } from "@/components/TVChart/streaming";
 import { getChartTable } from "@/utils/getChartTable";
+import { custom } from "viem";
 
 const lastBarsCache = new Map<string, Bar>();
 const minPrice: Number = 0;
@@ -26,17 +28,65 @@ const configurationData: DatafeedConfiguration = {
     "240",
     "1440",
   ] as ResolutionString[],
+
 };
 
 export function getDataFeed({
   pairIndex,
+  customPeriodParams,
   name,
   token
 }: {
   name: string;
   pairIndex: number;
+  customPeriodParams: PeriodParams;
   token: string
 }): IBasicDataFeed {
+  console.log(customPeriodParams,"=========")
+  const getBars = async (
+    symbolInfo: LibrarySymbolInfo,
+    resolution: string,
+    periodParams: PeriodParams,
+    onHistoryCallback: (bars: Bar[], meta: { noData: boolean }) => void,
+    onErrorCallback: (error: any) => void
+  ) => {
+    console.log(periodParams, "tradingview=======");
+    const { from, to, firstDataRequest } = periodParams;
+    console.log("[getBars]: Method call", symbolInfo, resolution, from, to);
+
+    try {
+      const chartTable = await getChartTable({
+        token,
+        pairIndex,
+        from,
+        to,
+        range: +resolution,
+      });
+
+      if (!chartTable || !chartTable.table) {
+        // "noData" should be set if there is no data in the requested period
+        onHistoryCallback([], { noData: true });
+        return;
+      }
+
+      let bars: Bar[] = [];
+
+      chartTable.table.forEach((bar: Bar) => {
+        if (bar.time >= from && bar.time < to) {
+          bars = [...bars, { ...bar, time: bar.time * 1000 }];
+        }
+      });
+
+      if (firstDataRequest) {
+        lastBarsCache.set(symbolInfo.name, { ...bars[bars.length - 1] });
+      }
+      console.log(`[getBars]: returned ${bars.length} bar(s)`);
+      onHistoryCallback(bars, { noData: false });
+    } catch (error: any) {
+      console.log("[getBars]: Get error", error);
+      onErrorCallback(error);
+    }
+  };
   return {
     onReady: (callback) => {
       console.log("[onReady]: Method call");
@@ -81,55 +131,26 @@ export function getDataFeed({
     },
 
     getBars: async (
-      symbolInfo: LibrarySymbolInfo,
+      symbolInfo,
       resolution,
       periodParams,
       onHistoryCallback,
-      onErrorCallback,
+      onErrorCallback
     ) => {
-      const { from, to, firstDataRequest } = periodParams;
-      console.log("[getBars]: Method call", symbolInfo, resolution, from, to);
-
-      try {
-        const chartTable = await getChartTable({
-          token,
-          pairIndex: pairIndex,
-          from,
-          to,
-          range: +resolution,
-        });
-
-        if (!chartTable || !chartTable.table) {
-          // "noData" should be set if there is no data in the requested period
-          onHistoryCallback([], {
-            noData: true,
-          });
-          return;
-        }
-
-        let bars: Bar[] = [];
-
-        chartTable.table.forEach((bar: Bar) => {
-          if (bar.time >= from && bar.time < to) {
-            bars = [...bars, { ...bar, time: bar.time * 1000 }];
-          }
-        });
-
-        if (firstDataRequest) {
-          lastBarsCache.set(symbolInfo.name, {
-            ...bars[bars.length - 1],
-          });
-        }
-        console.log(`[getBars]: returned ${bars.length} bar(s)`);
-        onHistoryCallback(bars, {
-          noData: false,
-        });
-      } catch (error: any) {
-        console.log("[getBars]: Get error", error);
-        onErrorCallback(error);
-      }
+      // Use customPeriodParams if needed
+      const customParams = {
+        ...periodParams,
+        ...customPeriodParams,
+      };
+      console.log(customParams, "================", customPeriodParams)
+      await getBars(
+        symbolInfo,
+        resolution,
+        customParams,
+        onHistoryCallback,
+        onErrorCallback
+      );
     },
-
     subscribeBars: (
       symbolInfo,
       resolution,

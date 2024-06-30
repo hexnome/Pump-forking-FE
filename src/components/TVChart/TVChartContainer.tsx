@@ -1,6 +1,6 @@
 "use client"
 import { useContext, useEffect, useRef, useState } from "react";
-import { ChartingLibraryWidgetOptions, HistoryCallback, IChartingLibraryWidget, IDatafeedChartApi, LanguageCode, ResolutionString, SearchSymbolResultItem, widget } from "@/libraries/charting_library";
+import { ChartingLibraryWidgetOptions, HistoryCallback, IChartingLibraryWidget, IDatafeedChartApi, LanguageCode, PeriodParams, ResolutionString, SearchSymbolResultItem, widget } from "@/libraries/charting_library";
 import { usePathname } from "next/navigation";
 import { Bar, recordInfo } from "@/utils/types";
 import { getCoinTrade } from "@/utils/util";
@@ -16,6 +16,7 @@ export type TVChartContainerProps = {
     name: string;
     pairIndex: number;
     token: string;
+    customPeriodParams: PeriodParams;
     classNames?: {
         container: string;
     };
@@ -24,7 +25,8 @@ export type TVChartContainerProps = {
 export const TVChartContainer = ({
     name,
     pairIndex,
-    token
+    token,
+    customPeriodParams
 }: TVChartContainerProps) => {
     const chartContainerRef =
         useRef<HTMLDivElement>() as React.MutableRefObject<HTMLInputElement>;
@@ -44,7 +46,7 @@ export const TVChartContainer = ({
             const widgetOptions: ChartingLibraryWidgetOptions = {
                 symbol: name,
                 debug: false,
-                datafeed: getDataFeed({ pairIndex, name, token }),
+                datafeed: getDataFeed({ pairIndex, name, token, customPeriodParams }),
                 theme: "dark",
                 locale: "en",
                 container: elem,
@@ -68,8 +70,8 @@ export const TVChartContainer = ({
             tvWidgetRef.current = new widget(widgetOptions);
             tvWidgetRef.current.onChartReady(function () {
                 setIsLoading(false);
-                const priceScale = tvWidgetRef.current?.activeChart().getPanes()[0].getMainSourcePriceScale();
-                priceScale?.setAutoScale(true)
+                // const priceScale = tvWidgetRef.current?.activeChart().getPanes()[0].getMainSourcePriceScale();
+                // priceScale?.setAutoScale(true)
             });
             
             return () => {

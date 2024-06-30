@@ -2,9 +2,10 @@ import { msgInfo, userInfo } from "@/utils/types";
 
 interface MessageFormProps {
   msg: msgInfo;
+  onClose: () => void
 }
 
-export const MessageForm: React.FC<MessageFormProps> = ({ msg }) => {
+export const MessageForm: React.FC<MessageFormProps> = ({ msg, onClose }) => {
   return (
     <div className="my-2 py-1 bg-gray-900">
       <div className="m-2">
@@ -20,6 +21,7 @@ export const MessageForm: React.FC<MessageFormProps> = ({ msg }) => {
             {msg.sender && (msg.sender as userInfo).name}
           </h3>
           {msg.time && <h3 className="text-white leading-10">{msg.time.toString()}</h3>}
+          <p className="text-lg ml-4 hover:text-green-400 cursor-pointer text-white" onClick={onClose}>[Reply]</p>
         </div>
         <div className="flex">
           {msg.img !== undefined && (
