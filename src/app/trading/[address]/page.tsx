@@ -3,20 +3,20 @@ import { Chatting } from "@/components/Chatting";
 import { CoinBlog } from "@/components/CoinBlog";
 import { Holders } from "@/components/Holders";
 import { TradeForm } from "@/components/TradeForm";
-import {TradingChart} from "@/components/TVChart/TradingChart";
+import { TradingChart } from "@/components/TVChart/TradingChart";
 import UserContext from "@/context/UserContext";
 import { coinInfo } from "@/utils/types";
 import { getCoinInfo, getCoinTrade, getCoinsInfoBy } from "@/utils/util";
-import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useContext, useEffect, useMemo, useState } from "react";
 
 export default function Page() {
-  const {coinId, setCoinId} = useContext(UserContext)
+  const { coinId, setCoinId } = useContext(UserContext)
   const pathname = usePathname();
-  const [param, setParam] = useState<string >('');
+  const [param, setParam] = useState<string>('');
   const [progress, setProgress] = useState<Number>(60);
   const [coin, setCoin] = useState<coinInfo>({} as coinInfo);
+  const router = useRouter()
 
   useEffect(() => {
     const fetchData = async () => {
@@ -32,15 +32,14 @@ export default function Page() {
     }
     fetchData()
   }, [pathname]);
-  console.log("coinId====tradig",coinId)
   return (
     <>
       <div className="text-center">
-        <Link href="/">
+        <div onClick={() => router.push('/')}>
           <h1 className="text-center text-xl font-normal hover:font-bold cursor-pointer py-4">
             [go back]
           </h1>
-        </Link>
+        </div>
       </div>
       <div className="grid grid-flow-col-dense grid-cols-3 m-auto px-3">
         {/* trading view chart  */}

@@ -1,7 +1,7 @@
 import axios, { AxiosRequestConfig } from 'axios'
 import { ChartTable, coinInfo, msgInfo, replyInfo, userInfo } from './types';
 
-export const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
+export const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL + "/api";
 
 const headers: Record<string, string> = {
     "ngrok-skip-browser-warning": "true",
@@ -37,9 +37,7 @@ export const updateUser = async (id: string, data: userInfo): Promise<any>=>{
 
 export const walletConnect = async ({ data }: { data: userInfo }): Promise<any> => {
     try {
-        console.log("============walletConnect=========")
         const response = await axios.post(`${BACKEND_URL}/user/`, data)
-        console.log("==============response=====================", response.data, config)
         return response.data
     } catch (err) {
         return { error: "error setting up the request" }
@@ -67,7 +65,6 @@ export const createNewCoin = async (data: coinInfo) => {
 
 export const getCoinsInfo = async (): Promise<coinInfo[]> => {
     const res = await axios.get(`${BACKEND_URL}/coin`, config);
-    console.log("coin", `${BACKEND_URL}/coin`)
     return res.data
 }
 export const getCoinsInfoBy = async (id: string): Promise<coinInfo[]> => {
@@ -161,8 +158,17 @@ export const uploadImage = async (url: string) => {
     } else {
         return false;
     }
-    // const file = await createGenericFileFromBrowserFile(imageFile);
-
-    // const [uri] = await umi.uploader.upload([file]);
-    // console.log(uri, 'uriHash');
+    
 };
+
+export const getSolPriceInUSD = async () => {
+    try {
+      // Fetch the price data from CoinGecko
+      const response = await axios.get('https://api.coingecko.com/api/v3/simple/price?ids=solana&vs_currencies=usd');
+      const solPriceInUSD = response.data.solana.usd;
+      return solPriceInUSD;
+    } catch (error) {
+      console.error('Error fetching SOL price:', error);
+      throw error;
+    }
+  }

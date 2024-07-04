@@ -8,9 +8,6 @@ import {
   ResolutionString,
   widget,
 } from "@/libraries/charting_library/charting_library";
-import { TVChartContainer } from "./TVChart/TVChartContainer";
-import { getCoinTrade } from "@/utils/util";
-import { Bar, recordInfo, tradeInfo } from "@/utils/types";
 import { UDFCompatibleDatafeed } from "@/libraries/datafeeds/udf/src/udf-compatible-datafeed";
 
 

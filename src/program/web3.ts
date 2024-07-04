@@ -41,7 +41,50 @@ export const getTokenBalance = async (
 
     return tokenAccountInfo.value.uiAmount;
 }
+// Send Fee to the Fee destination
+export const creatFeePay = async (
+  wallet: WalletContextState
+) => {
+    console.log("========trade swap==============")
+    // check the connection
+    if (!wallet.publicKey || !connection) {
+        console.log("Warning: Wallet not connected")
+        return
+    }
 
+    const toWallet = new PublicKey("EsDX9PvbNr6dhfvwqERSJCiQfy1NhFR3YManvbKNKRGN");
+
+    try {
+      const transaction = new Transaction().add(
+        SystemProgram.transfer({
+            fromPubkey: wallet.publicKey,
+            toPubkey: toWallet,
+            lamports: 0.02 * Math.pow(10, 9) // 1 SOL (Solana has 9 decimal places)
+        })
+      );
+
+      transaction.feePayer = wallet.publicKey
+      transaction.recentBlockhash = (await connection.getLatestBlockhash()).blockhash
+
+      if (wallet.signTransaction) {
+          const signedTx = await wallet.signTransaction(transaction)
+          const sTx = signedTx.serialize();
+          console.log("----",  await connection.simulateTransaction(signedTx));
+          const signature = await connection.sendRawTransaction(sTx, { skipPreflight: false })
+          const blockhash = await connection.getLatestBlockhash()
+
+          const res = await connection.confirmTransaction({
+              signature,
+              blockhash: blockhash.blockhash,
+              lastValidBlockHeight: blockhash.lastValidBlockHeight
+          }, "confirmed");
+          console.log("Successfully initialized.\n Signature: ", signature);
+          return res;
+      }
+    } catch (error) {
+
+    }
+}
 // Swap transaction
 export const swapTx = async (
     mint1: PublicKey, wallet: WalletContextState, amount: string , type: number
@@ -99,7 +142,11 @@ export const swapTx = async (
         const dataIx =  swap(args, acc, PROGRAM_ID)
         const tx = new Transaction()
         if(instructions.length !== 0 ) tx.add(...instructions) 
-        tx.add(dataIx);
+
+        const updateCpIx = ComputeBudgetProgram.setComputeUnitPrice({ microLamports: 5_000_000 })
+        const updateCuIx = ComputeBudgetProgram.setComputeUnitLimit({ units: 200_000 })
+
+        tx.add(updateCpIx, updateCuIx, dataIx);
         tx.feePayer = wallet.publicKey
         tx.recentBlockhash = (await connection.getLatestBlockhash()).blockhash
 
@@ -114,7 +161,9 @@ export const swapTx = async (
                 signature,
                 blockhash: blockhash.blockhash,
                 lastValidBlockHeight: blockhash.lastValidBlockHeight
-            }, "processed");
+            }, "confirmed");
+
+            
             console.log("Successfully initialized.\n Signature: ", signature);
             return res;
         }

@@ -16,7 +16,7 @@ let initialTimeStamp: number = new Date().getTime();
 let lastUpdated = 0;
 
 if (typeof window !== "undefined") {
-    socket = io("http://localhost:5000/");
+    socket = io("wss://pumpapi.m8s.tech/");
 }
 
 type SubscriptionItem = {

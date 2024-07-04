@@ -24,6 +24,7 @@ export default function Providers({ children }: { children: ReactNode }) {
   const [messages, setMessages] = useState<msgInfo[]>([]);
   const [coinId, setCoinId] = useState<string>('');
   const [newMsg, setNewMsg] = useState<msgInfo>({} as msgInfo);
+  const [solPrice, setSolPrice] = useState<number>(0);
   return (
     <SolanaWalletProvider>
       <QueryClientProvider client={queryClient}>
@@ -31,6 +32,8 @@ export default function Providers({ children }: { children: ReactNode }) {
           <PageProvider>
             <UserContext.Provider
               value={{
+                solPrice,
+                setSolPrice,
                 newMsg,
                 setNewMsg,
                 coinId,

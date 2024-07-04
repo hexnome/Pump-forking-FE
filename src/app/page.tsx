@@ -2,15 +2,15 @@
 
 import Header from "@/components/Header";
 import { CoinBlog } from "@/components/CoinBlog";
-import { getCoinsInfo, test } from "@/utils/util";
+import { getCoinsInfo, getSolPriceInUSD, test } from "@/utils/util";
 import Image from "next/image";
 import { useContext, useEffect, useRef, useState } from "react";
-import Link from "next/link";
 import UserContext from "@/context/UserContext";
 import { coinInfo } from "@/utils/types";
+import { useRouter } from "next/navigation";
 
 export default function Home() {
-  const { isLoading, setIsLoading, isCreated } = useContext(UserContext);
+  const { isLoading, setIsLoading, isCreated, solPrice, setSolPrice } = useContext(UserContext);
   const [totalStaked, setTotalStaked] = useState(0);
   const [token, setToken] = useState("");
   const [data, setData] = useState<coinInfo[]>([]);
@@ -20,16 +20,23 @@ export default function Home() {
   const [king, setKing] = useState<coinInfo>({} as coinInfo);
   const dropdownRef = useRef(null);
   const dropdownRef1 = useRef(null);
+  const router = useRouter()
+
+  const handleToRouter = (id: string) => {
+    router.push(id)
+  }
 
   useEffect(() => {
     const fetchData = async () => {
       const coins = await getCoinsInfo();
+      const price = await getSolPriceInUSD();
       if (coins !== null) {
         coins.sort((a, b) => a.reserveOne - b.reserveOne);
 
         setData(coins);
         setIsLoading(true);
         setKing(coins[0]);
+        setSolPrice(price);
       }
     };
     fetchData();
@@ -61,7 +68,7 @@ export default function Home() {
           sortedData.sort((a, b) => a.reserveOne - b.reserveOne);
           break;
         case "market cap":
-          sortedData.sort((a, b) => a.marketcap - b.marketcap);
+          sortedData.sort((a, b) => a.reserveOne - b.reserveOne);
           break;
         case "creation time":
           sortedData.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
@@ -82,7 +89,7 @@ export default function Home() {
           sortedData.sort((a, b) => b.reserveOne - a.reserveOne);
           break;
         case "market cap":
-          sortedData.sort((a, b) => b.marketcap - a.marketcap);
+          sortedData.sort((a, b) => b.reserveOne - a.reserveOne);
           break;
         case "creation time":
           sortedData.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
@@ -115,20 +122,18 @@ export default function Home() {
   const searchToken = () => { };
   return (
     <main className="min-h-screen flex-col  justify-between p-24 pt-2 ">
-      <div className="text-center w-[240px]  m-auto">
-        <Link rel="stylesheet" href="/create-coin">
-          <h2 className="text-cener text-2xl font-medium hover:font-bold cursor-pointer">
-            Start a New Coin
-          </h2>
-        </Link>
+      <div onClick={() => handleToRouter('/create-coin')} className="text-center w-[240px]  m-auto">
+        <h2 className="text-cener text-2xl font-medium hover:font-bold cursor-pointer">
+          Start a New Coin
+        </h2>
       </div>
       <div className="flex-col content-between">
         <h1 className="text-xl font-bold py-4 text-center">King of the hill</h1>
         <div className="flex justify-center">
           {data[0] && (
-            <Link href={`/trading/${data[0]?._id}`}>
+            <div onClick={() => handleToRouter(`/trading/${data[0]?._id}`)} className="cursor-pointer">
               <CoinBlog coin={data[0]} componentKey="king" />
-            </Link>
+            </div>
           )}
         </div>
       </div>
@@ -187,9 +192,9 @@ export default function Home() {
       {data && (
         <div className="flex-wrap flex justify-center ">
           {data.map((temp, index) => (
-            <Link href={`/trading/${temp._id}`} key={index}>
+            <div key={index} onClick={() => handleToRouter(`/trading/${temp._id}`)} className="cursor-pointer">
               <CoinBlog coin={temp} componentKey="coin"></CoinBlog>
-            </Link>
+            </div>
           ))}
         </div>
       )}

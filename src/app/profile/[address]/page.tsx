@@ -5,8 +5,7 @@ import { errorAlert, successAlert } from "@/components/ToastGroup";
 import UserContext from "@/context/UserContext";
 import { coinInfo, userInfo } from "@/utils/types";
 import { getCoinsInfo, getCoinsInfoBy, getUser, updateUser, uploadImage } from "@/utils/util";
-import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { ChangeEvent, useContext, useEffect, useRef, useState } from "react";
 
 export default function Page() {
@@ -18,6 +17,11 @@ export default function Page() {
   const [data, setData] = useState<coinInfo[]>([]);
   const [isModal, setIsModal] = useState<boolean>(false)
   const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const router = useRouter()
+
+  const handleToRouter = (id: string) => {
+    router.push(id)
+  }
 
   useEffect(() => {
     // Extract the last segment of the pathname
@@ -64,7 +68,7 @@ export default function Page() {
       const url = URL.createObjectURL(file);
       setImageUrl(url);
       setIndex({ ...index, avatar: url });
-      setUser({...user, avatar: url});
+      setUser({ ...user, avatar: url });
 
       // Resetting the value of the file input
       if (fileInputRef.current) {
@@ -81,7 +85,7 @@ export default function Page() {
         avatar: url ? url : ''
       }
       const result = await updateUser(index._id, updatedUser);
-      if(result.error) errorAlert(`Failed to Save the Data`);
+      if (result.error) errorAlert(`Failed to Save the Data`);
       else successAlert(`Successfully Updated`)
       setIsModal(false);
     }
@@ -116,12 +120,10 @@ export default function Page() {
             {index.wallet}
           </p>
         </div>
-        <div className=" text-right w-[130px]">
-          <Link href={`https://solscan.io/account/${index.wallet}`}>
-            <p className="text-white text-md hover:border-1 hover:border-white hover:border-b-2  text-center">
-              View on Solscan
-            </p>
-          </Link>
+        <div className=" text-right w-[130px] cursor-pointer" onClick={() => handleToRouter(`https://solscan.io/account/${index.wallet}`)}>
+          <p className="text-white text-md hover:border-1 hover:border-white hover:border-b-2  text-center">
+            View on Solscan
+          </p>
         </div>
       </div>
       <div className="flex justify-center">
@@ -224,9 +226,9 @@ export default function Page() {
           <div className="flex justify-center">
             {
               data.map((coin, index) => (
-                <Link key={index} href={`/trading/${coin?.token}`}>
+                <div onClick={() => handleToRouter(`/trading/${coin?.token}`)} className="cursor-pointer">
                   <CoinBlog coin={coin} componentKey="coin" />
-                </Link>
+                </div>
               ))
             }
           </div>

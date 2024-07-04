@@ -17,7 +17,7 @@ export async function getChartTable({
     token: string;
 }): Promise<ChartTable> {
     try {
-        console.log("GET bars", token, from,)
+        // console.log("GET bars", token, from,)
         const res = await fetch(
             `${BACKEND_URL}/chart/${pairIndex}/${from}/${to}/${range}/${token}`,
         ).then((data) => data.json());

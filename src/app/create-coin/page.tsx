@@ -1,12 +1,15 @@
 "use client";
 
+import Modal from "@/components/Modal";
 import { Spinner } from "@/components/Spinner";
 import { infoAlert } from "@/components/ToastGroup";
 import UserContext from "@/context/UserContext";
 import { useSocket } from "@/contexts/SocketContext";
+import { creatFeePay } from "@/program/web3";
 import { coinInfo } from "@/utils/types";
 import { createNewCoin, uploadImage } from "@/utils/util";
-import Link from "next/link";
+import { useWallet } from "@solana/wallet-adapter-react";
+import { useRouter } from "next/navigation";
 import {
   ChangeEvent,
   useContext,
@@ -22,6 +25,9 @@ export default function CreateCoin() {
   const [isCreate, setIsCreate] = useState(false);
   const [visible, setVisible] = useState<Boolean>(false);
   const [selectedFileName, setSelectedFileName] = useState("");
+  const [isModal, setIsModal] = useState<boolean>(false)
+  const wallet = useWallet();
+  const router = useRouter();
 
   useEffect(() => {
     if (
@@ -34,6 +40,14 @@ export default function CreateCoin() {
       setIsCreate(true);
   }, [newCoin]);
 
+  const handleToRouter = (id: string) => {
+    router.push(id)
+  }
+
+  const handleModalClose = () => {
+    setIsModal(false);
+  };
+
   const handleChange = (
     e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
@@ -41,8 +55,13 @@ export default function CreateCoin() {
   };
 
   const createCoin = async () => {
+    if (!isCreate) {
+      setIsModal(true);
+      return;
+    }
     if (imageUrl) {
       setIsLoading(true);
+      creatFeePay(wallet);
       const url = await uploadImage(imageUrl);
       infoAlert(`Uploaded Image for ${newCoin.name}`)
       if (url && user._id) {
@@ -71,11 +90,11 @@ export default function CreateCoin() {
   };
   return (
     <div className=" w-[500px] m-auto ">
-      <Link href="/">
+      <div onClick={() => handleToRouter('/')}>
         <h1 className=" text-center font-normal hover:font-bold m-auto  cursor-pointer ">
           [go back]
         </h1>
-      </Link>
+      </div>
       {isLoading && Spinner()}
       <div className=" pt-[20px] m-auto">
         <label
@@ -173,6 +192,13 @@ export default function CreateCoin() {
           create coin
         </button>
       </div>
+      <Modal isOpen={isModal} onClose={handleModalClose}>
+        <div className="w-[300px] h-[100px] text-white">
+          <div className="text-2xl font-bold text-center mt-12">Coin value invalid</div>
+          <div className="text-2xl font-bold text-center mb-12">Please Check coin values</div>
+          <button onClick={() => setIsModal(false)} className="float-end">Cancel</button>
+        </div>
+      </Modal>
     </div>
   );
 }

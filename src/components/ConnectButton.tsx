@@ -9,13 +9,14 @@ import base58 from "bs58";
 import UserContext from "@/context/UserContext";
 import { confirmWallet, walletConnect } from "@/utils/util";
 import { userInfo } from "@/utils/types";
-import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 export const ConnectButton: FC = () => {
   const { user, setUser, login, setLogin, isLoading, setIsLoading } =
     useContext(UserContext);
   const { publicKey, disconnect, connect, signMessage } = useWallet();
   const { visible, setVisible } = useWalletModal();
+  const router = useRouter()
 
   const tempUser = useMemo(() => user, [user]);
   useEffect(() => {
@@ -76,6 +77,9 @@ export const ConnectButton: FC = () => {
     setLogin(false);
     localStorage.clear();
   };
+  const handleToProfile = (id: string) => {
+    router.push(id)
+  }
   return (
     <div>
       <button className=" rounded-lg border-[0.75px] border-[#371111] bg-[#5b1717] shadow-btn-inner text-[#ffffff] tracking-[0.32px] h-[42px] px-2 group relative ">
@@ -126,11 +130,9 @@ export const ConnectButton: FC = () => {
       </button>
       <div>
         {login && tempUser.wallet && (
-          <Link rel="stylesheet" href={`/profile/${tempUser._id}`}>
-            <div className="text-center py-1 text-md text-white cursor-pointer hover:bg-slate-800 hover:rounded-md active:bg-violet-700 focus:outline-none focus:ring focus:ring-violet-300">
+            <div onClick={() => handleToProfile(`/profile/${tempUser._id}`)} className="text-center py-1 text-md text-white cursor-pointer hover:bg-slate-800 hover:rounded-md active:bg-violet-700 focus:outline-none focus:ring focus:ring-violet-300">
               [View Profile]
             </div>
-          </Link>
         )}
       </div>
     </div>

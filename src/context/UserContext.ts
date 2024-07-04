@@ -29,6 +29,8 @@ const UserContext = createContext({
     setCoinId: (value: string) => { },
     newMsg: {} as msgInfo,
     setNewMsg: (value: msgInfo) => { },
+    solPrice: 0,
+    setSolPrice: (value: number) => {},
 })
 
 export default UserContext;

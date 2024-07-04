@@ -12,6 +12,8 @@ import type {
 import { subscribeOnStream, unsubscribeFromStream } from "@/components/TVChart/streaming";
 import { getChartTable } from "@/utils/getChartTable";
 import { custom } from "viem";
+import { getBalance } from "viem/actions";
+import { Mark } from "@/libraries/charting_library/datafeed-api";
 
 const lastBarsCache = new Map<string, Bar>();
 const minPrice: Number = 0;
@@ -42,7 +44,8 @@ export function getDataFeed({
   customPeriodParams: PeriodParams;
   token: string
 }): IBasicDataFeed {
-  console.log(customPeriodParams,"=========")
+
+  // console.log(customPeriodParams, "=========")
   const getBars = async (
     symbolInfo: LibrarySymbolInfo,
     resolution: string,
@@ -50,7 +53,6 @@ export function getDataFeed({
     onHistoryCallback: (bars: Bar[], meta: { noData: boolean }) => void,
     onErrorCallback: (error: any) => void
   ) => {
-    console.log(periodParams, "tradingview=======");
     const { from, to, firstDataRequest } = periodParams;
     console.log("[getBars]: Method call", symbolInfo, resolution, from, to);
 
@@ -80,13 +82,18 @@ export function getDataFeed({
       if (firstDataRequest) {
         lastBarsCache.set(symbolInfo.name, { ...bars[bars.length - 1] });
       }
-      console.log(`[getBars]: returned ${bars.length} bar(s)`);
+      // console.log(`[getBars]: returned ${bars.length} bar(s)`);
       onHistoryCallback(bars, { noData: false });
     } catch (error: any) {
       console.log("[getBars]: Get error", error);
       onErrorCallback(error);
     }
   };
+
+  console.log("good");
+
+
+
   return {
     onReady: (callback) => {
       console.log("[onReady]: Method call");
@@ -137,6 +144,7 @@ export function getDataFeed({
       onHistoryCallback,
       onErrorCallback
     ) => {
+      // console.log("good", customPeriodParams)
       // Use customPeriodParams if needed
       const customParams = {
         ...periodParams,
@@ -146,11 +154,12 @@ export function getDataFeed({
       await getBars(
         symbolInfo,
         resolution,
-        customParams,
+        customPeriodParams,
         onHistoryCallback,
         onErrorCallback
       );
     },
+
     subscribeBars: (
       symbolInfo,
       resolution,
