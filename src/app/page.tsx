@@ -18,6 +18,7 @@ export default function Home() {
   const [isSort, setIsSort] = useState(0);
   const [order, setOrder] = useState("desc")
   const [king, setKing] = useState<coinInfo>({} as coinInfo);
+  const [isSearch, setIsSearch] = useState<boolean>(false);
   const dropdownRef = useRef(null);
   const dropdownRef1 = useRef(null);
   const router = useRouter()
@@ -35,7 +36,7 @@ export default function Home() {
 
         setData(coins);
         setIsLoading(true);
-        setKing(coins[0]);
+        setKingCoin(coins);
         setSolPrice(price);
       }
     };
@@ -119,7 +120,31 @@ export default function Home() {
       document.removeEventListener('mousedown', handleClickOutside);
     };
   }, [dropdownRef, dropdownRef1]);
-  const searchToken = () => { };
+
+  const setKingCoin = (coins: coinInfo[]) => {
+    if (coins.length === 0) return undefined;
+
+    let kingCoin = coins[0];
+
+    for (let coin of coins) {
+      if (coin.reserveOne > kingCoin.reserveOne) {
+        kingCoin = coin;
+      }
+    }
+
+    // You can set an additional property on the coin if you want
+    // For example, if you want to mark it as king:
+    // (kingCoin as any).isKing = true;
+
+    setKing(kingCoin)
+  }
+
+  const searchToken = () => {
+
+    setIsSearch(true);
+    
+
+   };
   return (
     <main className="min-h-screen flex-col  justify-between p-24 pt-2 ">
       <div onClick={() => handleToRouter('/create-coin')} className="text-center w-[240px]  m-auto">

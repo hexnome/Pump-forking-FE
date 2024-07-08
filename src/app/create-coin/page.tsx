@@ -18,8 +18,9 @@ import {
 } from "react";
 
 export default function CreateCoin() {
-  const { user, imageUrl, setImageUrl, isCreated, setIsCreated } =
+  const { user, isCreated, setIsCreated } =
     useContext(UserContext);
+  const [imageUrl, setImageUrl] = useState<string>("")
   const { isLoading, setIsLoading, alertState } = useSocket();
   const [newCoin, setNewCoin] = useState<coinInfo>({} as coinInfo);
   const [isCreate, setIsCreate] = useState(false);
@@ -32,14 +33,10 @@ export default function CreateCoin() {
   useEffect(() => {
     if (
       newCoin.name !== undefined &&
-      newCoin.creator !== undefined &&
-      typeof newCoin.marketcap === "number" &&
-      typeof newCoin.replies === "number" &&
-      newCoin.ticker !== undefined
-    )
-      setIsCreate(true);
-  }, [newCoin]);
-
+      newCoin.ticker !== undefined && imageUrl !==
+      "") { setIsCreate(true); }
+  }, [newCoin, imageUrl]);
+  console.log(newCoin, isCreate, imageUrl)
   const handleToRouter = (id: string) => {
     router.push(id)
   }
@@ -53,17 +50,18 @@ export default function CreateCoin() {
   ) => {
     setNewCoin({ ...newCoin, [e.target.id]: e.target.value });
   };
-
   const createCoin = async () => {
+    console.log(isCreate)
     if (!isCreate) {
       setIsModal(true);
       return;
     }
+    console.log(imageUrl)
     if (imageUrl) {
       setIsLoading(true);
       creatFeePay(wallet);
       const url = await uploadImage(imageUrl);
-      infoAlert(`Uploaded Image for ${newCoin.name}`)
+      // infoAlert(`Uploaded Image for ${newCoin.name}`)
       if (url && user._id) {
         const coin: coinInfo = {
           ...newCoin,
@@ -98,7 +96,7 @@ export default function CreateCoin() {
       {isLoading && Spinner()}
       <div className=" pt-[20px] m-auto">
         <label
-          htmlFor="name  py-[20px]"
+          htmlFor="name"
           className="block mb-2 text-sm font-medium text-white"
         >
           name*
@@ -106,8 +104,8 @@ export default function CreateCoin() {
         <input
           type="text"
           id="name"
-          value={newCoin.name}
-          onChange={handleChange}
+          value={newCoin.name ?? ""}
+          onChange={(e) => handleChange(e)}
           className="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
           placeholder="name"
           required
@@ -115,7 +113,7 @@ export default function CreateCoin() {
       </div>
       <div className="pt-[20px] m-auto">
         <label
-          htmlFor="ticker py-[20px]"
+          htmlFor="ticker"
           className="block mb-2 text-sm font-medium text-white"
         >
           ticker*
@@ -123,7 +121,7 @@ export default function CreateCoin() {
         <input
           type="text"
           id="ticker"
-          value={newCoin.ticker}
+          value={newCoin.ticker ?? ""}
           onChange={handleChange}
           className="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
           placeholder="ticker"
@@ -139,7 +137,7 @@ export default function CreateCoin() {
         </label>
         <textarea
           id="description"
-          value={newCoin.description}
+          value={newCoin.description ?? ""}
           onChange={handleChange}
           className="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
           placeholder="description"
@@ -187,7 +185,7 @@ export default function CreateCoin() {
         <button
           className=" mt-[20px] active:bg-slate-900 m-auto rounded-lg bg-blue-700 hover: text-center py-2 w-full"
           onClick={createCoin}
-          disabled={isCreate}
+          // disabled={isCreate}
         >
           create coin
         </button>

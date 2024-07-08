@@ -35,7 +35,7 @@ export const TradingChart: React.FC<TradingChartProps> = ({ param }) => {
                 to: Math.floor(new Date().getTime() / 1000),
                 // to: new Date().getTime(),
                 firstDataRequest: true,
-                countBack: 300
+                countBack: 2,
             }
             console.log(newPeriod, "tradingview")
             setPeriod(newPeriod);

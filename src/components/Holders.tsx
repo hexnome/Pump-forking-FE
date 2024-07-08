@@ -26,25 +26,24 @@ export const Holders: React.FC<HolderInfo> = ({ param, coin }) => {
     }
     fetchData();
   }, [param])
-  
   const holderCalc = (records: recordInfo[]): holderInfo[] => {
     const aggregation = records.reduce((acc, record) => {
       const { holder, amount } = record;
-
+      
       if (!acc[holder.name]) {
         acc[holder.name] = {
           holder,
           totalAmount: 0,
         };
       }
-      acc[holder.name].totalAmount += (-1)**(record.holdingStatus+1)*amount;
+      acc[holder.name].totalAmount += (-1)**(record.holdingStatus)*amount;
       return acc;
     }, {} as Record<string, holderInfo>);
 
     return Object.values(aggregation);
   };
-
-  // console.log("trades", trades)
+  
+  console.log("holders:;",holders)
   return (
     <div className="m-4">
       {holders && holders.map((trade, index) => (

@@ -43,6 +43,7 @@ export const Chatting: React.FC<ChattingProps> = ({ param, coin }) => {
       // setNewMsg({} as msgInfo);
     }
   }, [tempNewMsg])
+  messages.sort((a, b) => new Date(b.time).getTime() - new Date(a.time).getTime())
   const handleModalToggle = () => {
     setIsModal(!isModal);
   };

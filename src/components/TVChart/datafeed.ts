@@ -44,56 +44,9 @@ export function getDataFeed({
   customPeriodParams: PeriodParams;
   token: string
 }): IBasicDataFeed {
-
+  let initialLoadComplete = false;
   // console.log(customPeriodParams, "=========")
-  const getBars = async (
-    symbolInfo: LibrarySymbolInfo,
-    resolution: string,
-    periodParams: PeriodParams,
-    onHistoryCallback: (bars: Bar[], meta: { noData: boolean }) => void,
-    onErrorCallback: (error: any) => void
-  ) => {
-    const { from, to, firstDataRequest } = periodParams;
-    console.log("[getBars]: Method call", symbolInfo, resolution, from, to);
-
-    try {
-      const chartTable = await getChartTable({
-        token,
-        pairIndex,
-        from,
-        to,
-        range: +resolution,
-      });
-
-      if (!chartTable || !chartTable.table) {
-        // "noData" should be set if there is no data in the requested period
-        onHistoryCallback([], { noData: true });
-        return;
-      }
-
-      let bars: Bar[] = [];
-
-      chartTable.table.forEach((bar: Bar) => {
-        if (bar.time >= from && bar.time < to) {
-          bars = [...bars, { ...bar, time: bar.time * 1000 }];
-        }
-      });
-
-      if (firstDataRequest) {
-        lastBarsCache.set(symbolInfo.name, { ...bars[bars.length - 1] });
-      }
-      // console.log(`[getBars]: returned ${bars.length} bar(s)`);
-      onHistoryCallback(bars, { noData: false });
-    } catch (error: any) {
-      console.log("[getBars]: Get error", error);
-      onErrorCallback(error);
-    }
-  };
-
   console.log("good");
-
-
-
   return {
     onReady: (callback) => {
       console.log("[onReady]: Method call");
@@ -125,7 +78,7 @@ export function getDataFeed({
         exchange: "",
         has_intraday: true,
         visible_plots_set: 'ohlc',
-        has_weekly_and_monthly: false,
+        has_weekly_and_monthly: true,
         supported_resolutions: configurationData.supported_resolutions,
         volume_precision: 2,
         data_status: "streaming",
@@ -144,20 +97,43 @@ export function getDataFeed({
       onHistoryCallback,
       onErrorCallback
     ) => {
-      // console.log("good", customPeriodParams)
       // Use customPeriodParams if needed
-      const customParams = {
-        ...periodParams,
-        ...customPeriodParams,
-      };
-      console.log(customParams, "================", customPeriodParams)
-      await getBars(
-        symbolInfo,
-        resolution,
-        customPeriodParams,
-        onHistoryCallback,
-        onErrorCallback
-      );
+      const { from, to, firstDataRequest,countBack } = periodParams 
+      try {
+        const chartTable = await getChartTable({
+          token,
+          pairIndex,
+          from,
+          to,
+          range: +resolution,
+          countBack
+        });
+
+        if (!chartTable || !chartTable.table) {
+          onHistoryCallback([], { noData: true });
+          return;
+        }
+
+        let bars = chartTable.table.map(bar => ({
+          ...bar,
+          time: bar.time * 1000, // Convert from seconds to milliseconds
+        }));
+
+        if (firstDataRequest) {
+          lastBarsCache.set(symbolInfo.name, { ...bars[bars.length - 1] });
+        }
+
+        console.log(`[getBars]: returned ${bars.length} bar(s)`);
+        onHistoryCallback(bars, { noData: false });
+
+        if (!initialLoadComplete) {
+          initialLoadComplete = true;
+        }
+        return;
+      } catch (error) {
+        console.log("[getBars]: Get error", error);
+        onErrorCallback(error);
+      }
     },
 
     subscribeBars: (
