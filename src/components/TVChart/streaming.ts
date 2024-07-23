@@ -10,14 +10,18 @@ import type {
 
 import { queryClient } from "../providers";
 import { Chart } from "@/utils/types";
+import { useSocket } from "@/contexts/SocketContext";
 
-let socket: Socket | undefined = undefined;
+// let socket: Socket | undefined = undefined;
 let initialTimeStamp: number = new Date().getTime();
 let lastUpdated = 0;
 
-if (typeof window !== "undefined") {
-    socket = io("wss://pumpapi.m8s.tech/");
-}
+const { socket } = useSocket();
+
+
+// if (typeof window !== "undefined") {
+//     socket = io("wss://pumpapi.m8s.tech/");
+// }
 
 type SubscriptionItem = {
     subscriberUID: string;
@@ -33,6 +37,7 @@ type SubscriptionItem = {
 const channelToSubscription = new Map<number, SubscriptionItem>();
 
 if (socket) {
+    console.log("socket::::::")
     socket.on("connect", () => {
         console.log("[socket] Connected", socket!.id);
         initialTimeStamp = new Date().getTime();

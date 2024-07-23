@@ -30,7 +30,7 @@ export const CoinBlog: React.FC<CoinBlogProps> = ({ coin, componentKey }) => {
                 </div>
             </div>
           </div>
-          <div>market cap: {(coin.reserveTwo/coin.reserveOne * (1_000_000_000_000_000 - coin.reserveOne) / 1_000_000_000 * solPrice).toFixed(2)} [badge:👑]</div>
+          <div>market cap: {(coin.reserveTwo/coin.reserveOne * (1_000_000_000_000_000 ) / 1_000_000_000_000 * solPrice).toFixed(4)} K[badge:👑]</div>
           {/* <div>replies: {coin?.replies}</div> */}
           <div>
             {coin?.name} [ticker: {coin?.ticker}]

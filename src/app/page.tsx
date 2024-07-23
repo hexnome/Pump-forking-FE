@@ -28,21 +28,21 @@ export default function Home() {
   }
 
   useEffect(() => {
-    const fetchData = async () => {
-      const coins = await getCoinsInfo();
-      const price = await getSolPriceInUSD();
-      if (coins !== null) {
-        coins.sort((a, b) => a.reserveOne - b.reserveOne);
 
-        setData(coins);
-        setIsLoading(true);
-        setKingCoin(coins);
-        setSolPrice(price);
-      }
-    };
     fetchData();
 
   }, []);
+  const fetchData = async () => {
+    const coins = await getCoinsInfo();
+    const price = await getSolPriceInUSD();
+    if (coins !== null) {
+      coins.sort((a, b) => a.reserveOne - b.reserveOne);
+      setData(coins);
+      setIsLoading(true);
+      setKingCoin(coins);
+      setSolPrice(price);
+    }
+  };
   const handleSortSelection = (option) => {
     let sortOption: string = '';
     let orderOption: string = "";
@@ -81,7 +81,7 @@ export default function Home() {
     } else {
       switch (sortOption) {
         case "bump order":
-          sortedData.sort((a, b) => b.reserveOne - a.reserveOne);
+          // sortedData.sort((a, b) => b.reserveOne - a.reserveOne);
           break;
         case "last reply":
           sortedData.sort((a, b) => b.reserveOne - a.reserveOne);
@@ -127,24 +127,26 @@ export default function Home() {
     let kingCoin = coins[0];
 
     for (let coin of coins) {
-      if (coin.reserveOne > kingCoin.reserveOne) {
+      if (coin.reserveOne < kingCoin.reserveOne) {
         kingCoin = coin;
       }
     }
-
-    // You can set an additional property on the coin if you want
-    // For example, if you want to mark it as king:
-    // (kingCoin as any).isKing = true;
-
     setKing(kingCoin)
   }
 
   const searchToken = () => {
+    console.log("searchResult")
 
     setIsSearch(true);
-    
+    if (token !== ""){
+      const searchResult = data.filter(coin => coin.token == token)
+    console.log(searchResult, "searchResult")
+    setData(searchResult);
+    } else {
+      fetchData()
+    }
 
-   };
+  };
   return (
     <main className="min-h-screen flex-col  justify-between p-24 pt-2 ">
       <div onClick={() => handleToRouter('/create-coin')} className="text-center w-[240px]  m-auto">
@@ -155,9 +157,9 @@ export default function Home() {
       <div className="flex-col content-between">
         <h1 className="text-xl font-bold py-4 text-center">King of the hill</h1>
         <div className="flex justify-center">
-          {data[0] && (
+          {king && (
             <div onClick={() => handleToRouter(`/trading/${data[0]?._id}`)} className="cursor-pointer">
-              <CoinBlog coin={data[0]} componentKey="king" />
+              <CoinBlog coin={king} componentKey="king" />
             </div>
           )}
         </div>
@@ -172,7 +174,7 @@ export default function Home() {
         />
         <button
           className="w-[70px] h-[40px] mx-5 bg-slate-800 active:bg-opacity-70 "
-          onClick={searchToken}
+          onClick={() => searchToken()}
         >
           Search
         </button>
